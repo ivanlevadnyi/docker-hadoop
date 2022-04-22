@@ -2,6 +2,8 @@ version: "3"
 
 services:
   namenode:
+    build:
+      context: "./prod-hadoop/namenode"
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
     restart: always
@@ -13,9 +15,18 @@ services:
     environment:
       - CLUSTER_NAME=BigDataCluster
     env_file:
-      - ./hadoop.env
-
+      - "./prod-hadoop/hadoop.env"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8192M
+        reservations:
+          cpus: '2'
+          memory: 4096M
   datanode:
+    build:
+      context: "./prod-hadoop/datanode"
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode
     restart: always
@@ -24,27 +35,56 @@ services:
     environment:
       SERVICE_PRECONDITION: "namenode:9870"
     env_file:
-      - ./hadoop.env
+      - "./prod-hadoop/hadoop.env"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8192M
+        reservations:
+          cpus: '2'
+          memory: 4096M
 
   resourcemanager:
+    build:
+      context: "./prod-hadoop/resourcemanager"
     image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
     container_name: resourcemanager
     restart: always
     environment:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
     env_file:
-      - ./hadoop.env
+      - "./prod-hadoop/hadoop.env"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8192M
+        reservations:
+          cpus: '2'
+          memory: 4096M
 
-  nodemanager1:
+  nodemanager:
+    build:
+      context: "./prod-hadoop/resourcemanager"
     image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
     container_name: nodemanager
     restart: always
     environment:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
-      - ./hadoop.env
-
+      - "./prod-hadoop/hadoop.env"
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 16384M
+        reservations:
+          cpus: '4'
+          memory: 8192M
   historyserver:
+    build:
+      context: "./prod-hadoop/historyserver"
     image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
     container_name: historyserver
     restart: always
@@ -53,9 +93,12 @@ services:
     volumes:
       - "/opt/docker/prod-hadoop:/hadoop/yarn/timeline:rw"
     env_file:
-      - ./hadoop.env
-
-volumes:
-  hadoop_namenode:
-  hadoop_datanode:
-  hadoop_historyserver:
+      - "./prod-hadoop/hadoop.env"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8192M
+        reservations:
+          cpus: '2'
+          memory: 4096M
