@@ -1,8 +1,6 @@
 FROM bde2020/hadoop-base:2.0.0-hadoop3.2.1-java8
 
-MAINTAINER Ivan Ermilov <ivan.s.ermilov@gmail.com>
-
-HEALTHCHECK CMD curl -f http://localhost:9870/ || exit 1
+HEALTHCHECK CMD curl -f http://srv-sap-001.cloud.socprime.com:9870/ || exit 1
 
 ENV HDFS_CONF_dfs_namenode_name_dir=file:///hadoop/dfs/name
 RUN mkdir -p /hadoop/dfs/name
